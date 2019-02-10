@@ -1,70 +1,69 @@
-const cheerio = require('cheerio')
-const request = require('request');
-const {detectFont, supportedFonts} = require('detect-font');
-
-let URL = process.argv[2] + '/assets/css/style.css'
-
-if(!URL){
-    URL= "https://www.google.com"
+const minimalcss = require('minimalcss');
+const separator = `\n============================================================\n`
+let URL = process.argv[2]
+let cleanURL = `${separator}Gathering fonts from:\n\n${URL}${separator}`
+function validateUrl(value) {
+    return /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:[/?#]\S*)?$/i.test(value);
 }
-console.log(URL)
-
-// set up scrape of specific URL using Cheerio.js
-// request({
-//     method: 'GET',
-//     url: URL
-// }, (err, res, body) => {
-//     if (err) return console.error(err);
-//     //loads the entire body
-//     let $ = cheerio.load(body);
-    
-//     //searches the element: title to get the text
-//     let title = $('title');
-//     console.log(title.text());
-
-//     let style = $('style').children();
-//     // style.children().first()
-//     console.log(style)
-
-//     let fonts = $('p').attr()
-//     console.log(fonts.style)
-
-//     // var obj = css.parse('body { font-size: 12px; }');
-//     // console.log(css.stringify(obj));
-
-//     var linkHrefs = $('link').map(function(i) {
-//         return $(this).attr('href');
-//       }).get();
-//       var scriptSrcs = $('script').map(function(i) {
-//         return $(this).attr('src');
-//       }).get();
-
-//       console.log("links:");
-//       console.log(linkHrefs);
-//       console.log("scripts:");
-//       console.log(scriptSrcs);
-
-// });
-
-request(URL, function (error, response, body) {
-  if (!error && response.statusCode == 200) {
-    var $ = cheerio.load(body);
-    console.log(body)
-    var linkHrefs = $('link').map(function(i) {
-      return $(this).attr('href');
-    }).get();
-    var scriptSrcs = $('*').children().map(function(i) {
-      return (
-        $(this).attr('style')
-        // $(this).nextAll().attr('style')
-        )
-    }).get();
-
-
-    // console.log("links:");
-    // console.log(linkHrefs);
-    // console.log("scripts:");
-    // console.log(scriptSrcs);
-
+// error handling
+// check the URL to make sure it is valid
+if(!URL){
+    URL= "https://www.webflow.com"
+    console.log(`${separator}Gathering fonts from:\n\n${URL}${separator}`)
+    runCSS()
+} else {
+    if(validateUrl(URL)=== false){
+        console.log(`${separator}invalid URL, try again${separator}`)
+    } else {
+        console.log(cleanURL)
+        runCSS()
+    }
+}
+function add(array, value) {
+    if (array.indexOf(value) === -1) {
+      array.push(value);
+    }
   }
-});
+
+function runCSS(){
+    minimalcss
+    .minimize({ urls: [URL] })
+    .then(result => {
+        // console.log('OUTPUT', result.finalCss);
+        // myJson = JSON.stringify(result.finalCss)
+        splitFull = result.finalCss.split('font-family:')
+        // console.log(splitFull)
+        var fonts = []
+        for (var i=1;i<splitFull.length;i++){
+            //split on ; and capture i[0] in new for loop to send to fonts array]
+            var font = splitFull[i].split(';')
+            // console.log(font[0])
+            if(font[0].includes('}')){
+            
+                var f = font[0].split('}')
+                // console.log(f[0])
+
+                add(fonts, f[0])
+                // fonts.push(f[0])
+            } else {
+                // console.log(font[0])
+                add(fonts, font[0])
+                // fonts.push(font[0])
+            }
+        }
+        if(fonts.length > 0){
+            console.log(`***Results***\n`)
+
+            for (var m=0; m<fonts.length; m++){
+             console.log(fonts[m])
+            }
+
+            // console.log(`${fonts}\n`)
+        } else {
+            console.log("No results found")
+        }
+    })
+    .catch(error => {
+        console.error(`Failed the minimize CSS: ${error}`);
+    });
+}
