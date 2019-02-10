@@ -1,24 +1,47 @@
 const minimalcss = require('minimalcss');
-const separator = `\n============================================================\n`
+const cheerio = require('cheerio')
+const request = require('request')
+
+const separator = `\n=======================================================================\n`
 let URL = process.argv[2]
-let cleanURL = `${separator}Gathering fonts from:\n\n${URL}${separator}`
-function validateUrl(value) {
-    return /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:[/?#]\S*)?$/i.test(value);
-}
+let cleanURL = `${separator}Gathering fonts from:\n\n${URL}`
+
+
 // error handling
 // check the URL to make sure it is valid
 if(!URL){
     URL= "https://www.webflow.com"
-    console.log(`${separator}Gathering fonts from:\n\n${URL}${separator}`)
+    console.log(`${separator}Gathering fonts from:\n\n${URL}`)
+    scrapeTitle()
     runCSS()
 } else {
     if(validateUrl(URL)=== false){
         console.log(`${separator}invalid URL, try again${separator}`)
     } else {
         console.log(cleanURL)
+        scrapeTitle()
         runCSS()
     }
 }
+function scrapeTitle() {
+    // set up scrape of specific URL using Cheerio.js
+    request({
+        method: 'GET',
+        url: URL
+    }, (err, res, body) => {
+        if (err) return console.error(err);
+        //loads the entire body
+        let $ = cheerio.load(body);
+        //searches the element: title to get the text
+        let title = $('title');
+        console.log(`\n${title.text()} ${separator}`);
+    });
+}
+
+function validateUrl(value) {
+    return /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:[/?#]\S*)?$/i.test(value);
+}
+
 function add(array, value) {
     if (array.indexOf(value) === -1) {
       array.push(value);
@@ -39,24 +62,21 @@ function runCSS(){
             var font = splitFull[i].split(';')
             // console.log(font[0])
             if(font[0].includes('}')){
-            
+                //if result includes end curly brace, split on curly brace to target only items inside of font-family
                 var f = font[0].split('}')
-                // console.log(f[0])
 
-                add(fonts, f[0])
-                // fonts.push(f[0])
+                add(fonts, f[0].replace(/'/g, '').replace(/"/g, ''))
             } else {
-                // console.log(font[0])
-                add(fonts, font[0])
-                // fonts.push(font[0])
+                add(fonts, font[0].replace(/'/g, '').replace(/"/g, ''))
             }
         }
         if(fonts.length > 0){
-            console.log(`***Results***\n`)
+            console.log(`*** RESULTS ***\n`)
 
             for (var m=0; m<fonts.length; m++){
              console.log(fonts[m])
             }
+            console.log(`\n`)
 
             // console.log(`${fonts}\n`)
         } else {

@@ -3,3 +3,6 @@ cd into it
 npm install
 run the file with the third argument as the website url
 (this assumes the url is an accurate URL)
+
+
+if you choose to run the file with no third URL argument, it defaults to scraping the css off of Webflow's site.
