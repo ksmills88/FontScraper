@@ -6,8 +6,6 @@ const separator = `\n===========================================================
 let URL = process.argv[2]
 let cleanURL = `${separator}Gathering fonts from:\n\n${URL}`
 
-
-// error handling
 // check the URL to make sure it is valid
 if(!URL){
     URL= "https://www.webflow.com"
@@ -23,6 +21,7 @@ if(!URL){
         runCSS()
     }
 }
+// Scrapes the Title from the body of a URL using request and cheerio
 function scrapeTitle() {
     // set up scrape of specific URL using Cheerio.js
     request({
@@ -37,17 +36,21 @@ function scrapeTitle() {
         console.log(`\n${title.text()} ${separator}`);
     });
 }
-
+// Checks to make sure the URL given is valid 
 function validateUrl(value) {
     return /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:[/?#]\S*)?$/i.test(value);
 }
 
+// Adds values to given array only if the array doesn't already include that value
 function add(array, value) {
     if (array.indexOf(value) === -1) {
       array.push(value);
     }
   }
 
+// Runs the minimal CSS function to get all CSS from the URL.
+// CSS is then parsed and split to pull font-family info only by then splitting on ;
+// Checks for special characters to get simplified font data and log them in a list
 function runCSS(){
     minimalcss
     .minimize({ urls: [URL] })
