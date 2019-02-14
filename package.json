@@ -18,7 +18,8 @@
   "homepage": "https://github.com/webflow/karina-code-challenge#readme",
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
+    "express": "^4.16.4",
     "minimalcss": "^0.8.1",
-    "request": "^2.88.0",
+    "request": "^2.88.0"
   }
 }

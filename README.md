@@ -22,7 +22,7 @@ The API response of your endpint should include a list of the font families used
 - Optional parameter to limit the number of pages to crawl
 - Optional parameter to perform depth or breadth first crawling
 - Tests
-- Crawl the 100 most popular sites on [Webflow Discover](webflow.com/discover/popular) section.
+- Crawl the 100 most popular sites on [Webflow Discover](https://webflow.com/discover/popular) section.
 
 ### Submission details
 
