@@ -1,60 +1,47 @@
-// ===============================================================================
-// LOAD DATA
-// We are linking our routes to a series of "data" sources.
-// These data sources hold arrays of information on all possible friends
-// ===============================================================================
-
+// loads data array
 var websites = require("../data/website");
 
-// ===============================================================================
-// ROUTING
-// ===============================================================================
+// Dependencies
 const cheerio = require('cheerio')
 const request = require('request')
 const minimalcss = require('minimalcss');
 
-
 let URL = process.argv[2]
-const separator = `\n=======================================================================\n`
-let cleanURL = `${separator}Gathering fonts from:\n\n${URL}`
+let cleanURL = `\nGathering information from:\n${URL}\nThis may take a few seconds...\n`
 
-var websiteData = {
+let websiteData = {
   url: URL,
   title: "",
   fonts: []
 };
 
-
-// check the URL to make sure it is valid
+// check the URL to make sure it is valid. 
+// Set default if no URL provided, and throw error message if URL is invalid.
+// Otherwise, run code with given valid URL
 if(!URL){
   URL= "https://www.webflow.com"
-  
-  console.log(`${separator}Gathering fonts from:\n\n${URL}`)
+  console.log(`\nGathering information from:\n${URL}\nThis may take a few seconds...\n`)
   scrapeTitle()
   runCSS()
+  // Need to set URL to this default - otherwise, URL does not get added to JSON data
   websiteData.url = URL
-  console.log("this is the siteData inside IF")
-  console.log(websiteData)
+  // Once data is gathered and assigned, push the data to the data array that will get sent to the API endpoint
   websites.push(websiteData)
-  console.log("data pushed")
-
 } else {
   if(validateUrl(URL)=== false){
-      console.log(`${separator}invalid URL, try again${separator}`)
+      console.log(`invalid URL, try again`)
   } else {
       console.log(cleanURL)
       scrapeTitle()
       runCSS()
-
+      // Once data is gathered, push the data to the data array that will get sent to the API endpoint
       websites.push(websiteData)
 
   }
 }
 
-
-
+// Scrape the title from the body response of given URL
 function scrapeTitle() {
-  // set up scrape of specific URL using Cheerio.js
   request({
       method: 'GET',
       url: URL
@@ -64,16 +51,12 @@ function scrapeTitle() {
       let $ = cheerio.load(body);
       //searches the element: title to get the text
       let title = $('title');
+      //sets the title in the globally defined websiteData object
       websiteData.title = title.text()
-      console.log("this is the websiteData inside scrapeTitle")
-      console.log(websiteData.title)
-
-      // console.log(siteData)
-      // console.log(`\n${title.text()} ${separator}`);
   });
 }
 
-// Checks to make sure the URL given is valid 
+// Checks to make sure the URL given is valid. Must include 'https' 
 function validateUrl(value) {
   return /^(?:(?:(?:https?|ftp):)?\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))(?::\d{2,5})?(?:[/?#]\S*)?$/i.test(value);
 }
@@ -86,42 +69,42 @@ function add(array, value) {
 }
 
 // Runs the minimal CSS function to get all CSS from the URL.
-// CSS is then parsed and split to pull font-family info only by then splitting on ;
+// CSS is then parsed and split to pull font-family info ONLY by .then splitting on ;
 // Checks for special characters to get simplified font data and log them in a list
+
 function runCSS(){
   minimalcss
   .minimize({ urls: [URL] })
   .then(result => {
-      // console.log('OUTPUT', result.finalCss);
-      // myJson = JSON.stringify(result.finalCss)
+      //split the data-string on font-family
       splitFull = result.finalCss.split('font-family:')
-      // console.log(splitFull)
       var fonts = []
       for (var i=1;i<splitFull.length;i++){
           //split on ; and capture i[0] in new for loop to send to fonts array]
           var font = splitFull[i].split(';')
-          // console.log(font[0])
+          //before sending to font array, check for bracket
           if(font[0].includes('}')){
-              //if result includes end curly brace, split on curly brace to target only items inside of font-family
               var f = font[0].split('}')
-
+              // adds font, gets rid of any ' or " present within array
               add(fonts, f[0].replace(/'/g, '').replace(/"/g, ''))
           } else {
               add(fonts, font[0].replace(/'/g, '').replace(/"/g, ''))
           }
       }
+      //sets the fonts array in the globally defined websiteData object
       websiteData.fonts = fonts
       if(fonts.length > 0){
-          console.log(`*** RESULTS ***\n`)
-          // websiteData.fonts.push(fonts[m])
-          for (var m=0; m<fonts.length; m++){
-           console.log(fonts[m])
-          }
-          console.log(`\n`)
-
-          // console.log(`${fonts}\n`)
+        console.log(`\nYAY, SUCCESS! Follow the link below to see the results:`)
+        console.log(`http://localhost:8080/api/websites`)
+        // terminal output for CLI only app:
+        // console.log(`*** RESULTS ***\n`)
+        // for (var m=0; m<fonts.length; m++){
+        //  console.log(fonts[m])
+        // }
       } else {
-          console.log("No results found")
+        console.log(`\nSORRY, no font-families were gathered from ${URL}.\nTry another URL if you'd like.\nSee what data we did gather by following the link below:`)
+        console.log(`http://localhost:8080/api/websites`)
+
       }
   })
   .catch(error => {
@@ -129,57 +112,9 @@ function runCSS(){
   });
 }
 
-
-
-
-
 module.exports = function(app) {
-  // API GET Requests
-  // Below code handles when users "visit" a page.
-  // In each of the below cases when a user visits a link
-  // (ex: localhost:PORT/api/admin... they are shown a JSON of the data in the table)
-  // ---------------------------------------------------------------------------
-
-
-
-  // API POST Requests
-  // Below code handles when a user submits a form and thus submits data to the server.
-  // In each of the below cases, when a user submits form data (a JSON object)
-  // ...the JSON is pushed to the appropriate JavaScript array
-  // ---------------------------------------------------------------------------
-
-  app.post("/api/websites", function(req, res) {
-    // Note the code here. Our "server" will respond to a user"s survey result
-    // Then compare those results against every user in the database.
-    // It will then calculate the difference between each of the numbers and the user"s numbers.
-    // It will then choose the user with the least differences as the "best friend match."
-    // In the case of multiple users with the same result it will choose the first match.
-    // After the test, it will push the user to the database.
-
-    // We will use this object to hold the "best match". We will constantly update it as we
-    // loop through all of the options
-    var siteData = {
-      name: "website",
-      fonts: "Times New Roman"
-    };
-
-    // Here we take the result of the user"s survey POST and parse it.
-    var userData = req.body;
-    // Finally save the user's data to the database (this has to happen AFTER the check. otherwise,
-    // the database will always return that the user is the user's best friend).
-    websites.push(siteData);
-
-    // Return a JSON with the user's bestMatch. This will be used by the HTML in the next page
-    res.json(bestMatch);
-  });
 
   app.get("/api/websites", function(req, res) {
-    // var siteData = {
-    //   name: "website",
-    //   fonts: "Times New Roman"
-    // };
-    // websites.push(siteData);
-
     res.json(websites);
   });
 };

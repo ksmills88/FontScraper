@@ -33,6 +33,7 @@ The API response of your endpint should include a list of the font families used
 ## This is a Node.js application that take in a URL, downloads and parses the CSS files associated with that URL, and extracts all of the fonts being used on the page.
 
 ### Packages used:
+- [express](https://www.npmjs.com/package/express)
 - [cheerio](https://www.npmjs.com/package/cheerio)
 - [request](https://www.npmjs.com/package/request)
 - [minimalcss](https://www.npmjs.com/package/minimalcss)
@@ -43,49 +44,50 @@ The API response of your endpint should include a list of the font families used
 
 2. INSTALL dependencies (Node must be installed on your machine)
 
-3. RUN the index.js file
+3. RUN the server.js file
     
     ### Options to run the File:
-    1.  With a given URL as the 3rd argument
+    1.  With a given URL as the 3rd argument (Example):
         ```node
-        $ node index.js https://dijatek.com/
+        $ node server.js https://dijatek.com/
         ```
 
-    2. Without a given URL 
+    2. Without a given URL:
 
         ```node
-        $ node index.js
+        $ node server.js
         ```
-        *Default URL set to https://www.webflow.com*
+        *Default URL is set to https://www.webflow.com*
 
-    ### Terminal Output:
-    ```node
-    =======================================================================
-    Gathering fonts from:
+4. See the results!
 
-    https://www.webflow.com
+    - localhost port is set to 8080.
+    - once the application has run its course, the terminal will output the api endpoint, currently set to:
+        http://localhost:8080/api/websites, along with a success or fail message.
+    - a few error-proof sites that Successfully scrape font data:
+        - https://webflow.com
+        - https://dijatek.com
+        - https://apple.com
+        - https://reddit.com
+    - depending on how the site uses their CSS, the font formatting may be slightly different, but below is a successful response example:
 
-    Responsive web design tool, CMS, and hosting platform | Webflow
-    =======================================================================
+    ![Webflow](/images/APIEndpoint.png)
 
-    *** RESULTS ***
+    - if the font-family scrape was unsuccessful, the result object will still get created with title information that was scraped. The results will look something like this:
 
-    sans-serif
-    Graphik
-    inherit
-    Roboto Mono
-    Syncopate
-        
-    ```
+    ![Webflow](/images/Unsuccessful.png)
+
 
 ### Error Handling
 
 - (User error) Logic is built in for incomplete or non-valid URL strings.
-- If no results, output includes "no results found"
-- If the minimize function does not successfully retrieve all CSS files, error is shown.
+- If the minimize function does not successfully retrieve all CSS files, error is shown in the terminal
 
 ### Limitations
 
 - Not all websites and CSS files were created equally.
 - Some websites do not allow access to their CSS via this application.
 
+## Questions??
+
+Email: ksmills82@gmail.com
