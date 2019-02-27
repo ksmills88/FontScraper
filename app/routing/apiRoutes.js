@@ -15,30 +15,77 @@ let websiteData = {
   fonts: []
 };
 
+module.exports = function(app) {
+  // checkForFonts = () => {
+  //   app.get("/api/websites/:url")
+  //   console.log("Checked")
+    
+
+  // }
+
+  app.get("/api/websites/:url", function(req, res) {
+    URL = `https://${req.params.url}`;
+    websiteData.url = URL
+    console.log(URL)
+    scrapeTitle()
+    runCSS()
+    if(websiteData.fonts.length === 0){
+      res.send('Loading...Please wait a few seconds, then refresh!')
+      console.log(res.status)
+    } else{
+      res.send(websiteData)
+    }
+
+    // res.send(websiteData)
+    
+      // pullData().then(function(data){
+      //    return filterByYear(data);
+      // }).then(function(filteredData){
+      //    res.json(filteredData);
+      // })
+
+
+      // app.get("/api/websites/:url", function(req, res) {
+      //   URL = `https://${req.params.url}`;
+      //   console.log(URL)
+      //   scrapeTitle()
+      //   runCSS()
+      //   .then(function(data){
+      //     res.send(data)
+      //   })
+      // })
+
+  
+
+
+
+  });
+};
+
 // check the URL to make sure it is valid. 
 // Set default if no URL provided, and throw error message if URL is invalid.
 // Otherwise, run code with given valid URL
-if(!URL){
-  URL= "https://www.webflow.com"
-  console.log(`\nGathering information from:\n${URL}\nThis may take a few seconds...\n`)
-  scrapeTitle()
-  runCSS()
-  // Need to set URL to this default - otherwise, URL does not get added to JSON data
-  websiteData.url = URL
-  // Once data is gathered and assigned, push the data to the data array that will get sent to the API endpoint
-  websites.push(websiteData)
-} else {
-  if(validateUrl(URL)=== false){
-      console.log(`invalid URL, try again`)
-  } else {
-      console.log(cleanURL)
-      scrapeTitle()
-      runCSS()
-      // Once data is gathered, push the data to the data array that will get sent to the API endpoint
-      websites.push(websiteData)
+// if(!URL){
+//   URL= "https://www.webflow.com"
+//   console.log(`\nGathering information from:\n${URL}\nThis may take a few seconds...\n`)
+//   scrapeTitle()
+//   runCSS()
+//   // Need to set URL to this default - otherwise, URL does not get added to JSON data
+//   websiteData.url = URL
+//   // Once data is gathered and assigned, push the data to the data array that will get sent to the API endpoint
+//   websites.push(websiteData)
+// } else {
+//   if(validateUrl(URL)=== false){
+//       console.log(`invalid URL, try again`)
+//   } else {
+//       console.log(cleanURL)
+//       scrapeTitle()
+//       runCSS()
+//       // Once data is gathered, push the data to the data array that will get sent to the API endpoint
+//       websites.push(websiteData)
 
-  }
-}
+//   }
+// }
 
 // Scrape the title from the body response of given URL
 function scrapeTitle() {
@@ -112,9 +159,17 @@ function runCSS(){
   });
 }
 
-module.exports = function(app) {
+// module.exports = function(app) {
 
-  app.get("/api/websites", function(req, res) {
-    res.json(websites);
-  });
-};
+//   app.get("/api/websites/:url", function(req, res) {
+//     URL = req.params.url;
+//     console.log(URL)
+//     runCSS()
+//     // Once data is gathered, push the data to the data array that will get sent to the API endpoint
+//     websites.push(websiteData)
+//     console.log(websiteData)
+
+
+//     res.json(websites);
+//   });
+// };
