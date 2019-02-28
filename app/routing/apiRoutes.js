@@ -37,13 +37,6 @@ module.exports = function(app) {
     }
 
     // res.send(websiteData)
-    
-      // pullData().then(function(data){
-      //    return filterByYear(data);
-      // }).then(function(filteredData){
-      //    res.json(filteredData);
-      // })
-
 
       // app.get("/api/websites/:url", function(req, res) {
       //   URL = `https://${req.params.url}`;
@@ -54,12 +47,11 @@ module.exports = function(app) {
       //     res.send(data)
       //   })
       // })
-
-  
-
-
-
   });
+  app.get("/api/websites/", function(req, res) {
+    res.send(websites)
+  })
+
 };
 
 // check the URL to make sure it is valid. 
