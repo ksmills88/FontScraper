@@ -15,6 +15,14 @@ let websiteData = {
   fonts: []
 };
 
+function wait(ms)
+{
+var d = new Date();
+var d2 = null;
+do { d2 = new Date(); }
+while(d2-d < ms);
+}
+
 module.exports = function(app) {
   // checkForFonts = () => {
   //   app.get("/api/websites/:url")
@@ -25,15 +33,32 @@ module.exports = function(app) {
 
   app.get("/api/websites/:url", function(req, res) {
     URL = `https://${req.params.url}`;
-    websiteData.url = URL
+    // websiteData.url = URL
     console.log(URL)
-    scrapeTitle()
-    runCSS()
+    // scrapeTitle(URL)
+    runCSS(URL, scrapeTitle)
     if(websiteData.fonts.length === 0){
       res.send('Loading...Please wait a few seconds, then refresh!')
       console.log(res.status)
     } else{
-      res.send(websiteData)
+      // res.send(websiteData)
+
+      websites.length = 0
+      websites.push(websiteData)
+      websiteData.fonts = []
+      websiteData.title = ""
+      websiteData.url = ""
+      res.redirect('/api/websites');
+      console.log(websiteData)
+    }
+    if(websiteData.url !== URL){
+      websiteData.url = URL
+      runCSS(URL, scrapeTitle)
+
+      // res.send(websiteData)
+      // websites.push(websiteData)
+      // res.redirect('../');
+
     }
 
     // res.send(websiteData)
@@ -80,10 +105,10 @@ module.exports = function(app) {
 // }
 
 // Scrape the title from the body response of given URL
-function scrapeTitle() {
+function scrapeTitle(url) {
   request({
       method: 'GET',
-      url: URL
+      url: url
   }, (err, res, body) => {
       if (err) return console.error(err);
       //loads the entire body
@@ -111,7 +136,20 @@ function add(array, value) {
 // CSS is then parsed and split to pull font-family info ONLY by .then splitting on ;
 // Checks for special characters to get simplified font data and log them in a list
 
-function runCSS(){
+function getUserInput(firstName, lastName, gender, callback) {
+  var fullName = firstName + " " + lastName;
+
+  // Make sure the callback is a function
+  if (typeof callback === "function") {
+  // Execute the callback function and pass the parameters to it
+  callback(fullName, gender);
+  }
+}
+// runCSS(url, scrapeTitle)
+
+function runCSS(url, callback){
+  var URL = url
+  callback(URL)
   minimalcss
   .minimize({ urls: [URL] })
   .then(result => {
@@ -132,6 +170,7 @@ function runCSS(){
       }
       //sets the fonts array in the globally defined websiteData object
       websiteData.fonts = fonts
+      
       if(fonts.length > 0){
         console.log(`\nYAY, SUCCESS! Follow the link below to see the results:`)
         console.log(`http://localhost:8080/api/websites`)
@@ -145,6 +184,7 @@ function runCSS(){
         console.log(`http://localhost:8080/api/websites`)
 
       }
+      return(websiteData)
   })
   .catch(error => {
       console.error(`Failed the minimize CSS: ${error}`);
