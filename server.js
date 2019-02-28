@@ -13,4 +13,5 @@ require("./app/routing/apiRoutes")(app);
 
 app.listen(PORT, function() {
   console.log("App listening on PORT: " + PORT);
+  console.log(`Font Scraping Route: http://localhost:8080/api/websites`)
 });

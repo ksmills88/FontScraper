@@ -20,13 +20,13 @@ module.exports = function(app) {
   app.get("/api/websites/:url", function(req, res) {
     URL = `https://${req.params.url}`;
     websiteData.url = URL
-    runCSS(URL, scrapeTitle)
-    websites.length = 0
-    websites.push(websiteData)
-    res.redirect('/api/websites');
-    websiteData.fonts = []
-    websiteData.title = ""
-
+    // this is one of the functions that will be passed in as a callback to only perform the data push and redirect after the .then promise in the main function.
+    function r(data) {
+      websites.length = 0
+      websites.push(data)
+      res.redirect('/api/websites');
+    }
+    runCSS(URL, scrapeTitle, r)
   });
 
   app.get("/api/websites/", function(req, res) {
@@ -71,7 +71,7 @@ function add(array, value) {
 // CSS is then parsed and split to pull font-family info ONLY by .then splitting on ;
 // Checks for special characters to get simplified font data and log them in a list
 // require a callback to do all of the scrape logic in the same function.
-function runCSS(url, callback){
+function runCSS(url, callback, funct){
   var URL = url
   callback(URL)
   minimalcss
@@ -108,7 +108,8 @@ function runCSS(url, callback){
         console.log(`http://localhost:8080/api/websites`)
         websiteData.fonts = "Sorry, no fonts were found"
       }
-      return(websiteData)
+      // return(websiteData)
+      funct(websiteData)
   })
   .catch(error => {
       console.error(`Failed the minimize CSS: ${error}`);

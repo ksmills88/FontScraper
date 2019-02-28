@@ -58,11 +58,22 @@ The API response of your endpint should include a list of the font families used
 
     - The application works by taking in a url as a parameter. 
         > ```/api/websites/:url```
-    - When you hit the route, the code runs to scrape the font data from the given website. While this is running, you will see a Loading message
-    ![Webflow](/images/loading.png)
+    - When you hit the route, the code runs to scrape the font data and html title from the given website. This will take a few seconds.
 
-    - You are then redirected back to the initial route (```api/websites```) to see the results. This route currently only displays the searched on website information.
-    ![Webflow](/images/APIEndpoint.png)
+    - Once the scrape is complete, you are then redirected back to the initial route (```api/websites```) to see the results of that scrape. 
+
+    - If the application was unable to scrape the font data, your result will look something like this:
+
+        ```js
+        [
+            {
+                "url": "https://google.com",
+                "title": "Google",
+                "fonts": "Sorry, no fonts were found"
+                
+            }
+        ]
+        ```
 
 
     - A few error-proof sites that Successfully scrape font data:
