@@ -30,7 +30,7 @@ The API response of your endpint should include a list of the font families used
 
 # Getting Started
 
-## This is a Node.js application that take in a URL, downloads and parses the CSS files associated with that URL, and extracts all of the fonts being used on the page.
+## This is a Node.js application that takes in a URL as a URL parameter, downloads and parses the CSS files associated with that URL, and extracts all of the associated fonts and sends them to an API endpoint.
 
 ### Packages used:
 - [express](https://www.npmjs.com/package/express)
@@ -45,48 +45,38 @@ The API response of your endpint should include a list of the font families used
 2. INSTALL dependencies (Node must be installed on your machine)
 
 3. RUN the server.js file
-    
-    ### Options to run the File:
-    1.  With a given URL as the 3rd argument (Example):
-        ```node
-        $ node server.js https://dijatek.com/
-        ```
 
-    2. Without a given URL:
 
-        ```node
-        $ node server.js
-        ```
-        *Default URL is set to https://www.webflow.com*
+    ```node
+    $ node server.js
+    ```
 
-4. See the results!
+4. Go to the API endpoint
 
-    - localhost port is set to 8080.
-    - once the application has run its course, the terminal will output the api endpoint, currently set to:
-        http://localhost:8080/api/websites, along with a success or fail message.
-    - a few error-proof sites that Successfully scrape font data:
+    - navigate to http://localhost:8080/api/websites. You will see a default result that looks like this:
+    ![Webflow](/images/APIEndpoint.png)
+
+    - The application works by taking in a url as a parameter. 
+        > ```/api/websites/:url```
+    - When you hit the route, the code runs to scrape the font data from the given website. While this is running, you will see a Loading message
+    ![Webflow](/images/loading.png)
+
+    - You are then redirected back to the initial route (```api/websites```) to see the results. This route currently only displays the searched on website information.
+    ![Webflow](/images/APIEndpoint.png)
+
+
+    - A few error-proof sites that Successfully scrape font data:
         - https://webflow.com
         - https://dijatek.com
         - https://apple.com
         - https://reddit.com
-    - depending on how the site uses their CSS, the font formatting may be slightly different, but below is a successful response example:
-
-    ![Webflow](/images/APIEndpoint.png)
-
-    - if the font-family scrape was unsuccessful, the result object will still get created with title information that was scraped. The results will look something like this:
-
-    ![Webflow](/images/Unsuccessful.png)
 
 
-### Error Handling
-
-- (User error) Logic is built in for incomplete or non-valid URL strings.
-- If the minimize function does not successfully retrieve all CSS files, error is shown in the terminal
 
 ### Limitations
 
 - Not all websites and CSS files were created equally.
-- Some websites do not allow access to their CSS via this application.
+- Some websites do not allow access to their CSS via this application. The responses from those websites do not include the font data.
 
 ## Questions??
 
