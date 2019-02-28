@@ -6,8 +6,7 @@ const cheerio = require('cheerio')
 const request = require('request')
 const minimalcss = require('minimalcss');
 
-let URL = process.argv[2]
-let cleanURL = `\nGathering information from:\n${URL}\nThis may take a few seconds...\n`
+// let URL = process.argv[2]
 
 let websiteData = {
   url: URL,
@@ -15,94 +14,30 @@ let websiteData = {
   fonts: []
 };
 
-function wait(ms)
-{
-var d = new Date();
-var d2 = null;
-do { d2 = new Date(); }
-while(d2-d < ms);
-}
 
 module.exports = function(app) {
-  // checkForFonts = () => {
-  //   app.get("/api/websites/:url")
-  //   console.log("Checked")
-    
-
-  // }
 
   app.get("/api/websites/:url", function(req, res) {
     URL = `https://${req.params.url}`;
-    // websiteData.url = URL
-    console.log(URL)
-    // scrapeTitle(URL)
+    websiteData.url = URL
     runCSS(URL, scrapeTitle)
-    if(websiteData.fonts.length === 0){
-      res.send('Loading...Please wait a few seconds, then refresh!')
-      console.log(res.status)
-    } else{
-      // res.send(websiteData)
+    websites.length = 0
+    websites.push(websiteData)
+    res.redirect('/api/websites');
+    websiteData.fonts = []
+    websiteData.title = ""
 
-      websites.length = 0
-      websites.push(websiteData)
-      websiteData.fonts = []
-      websiteData.title = ""
-      websiteData.url = ""
-      res.redirect('/api/websites');
-      console.log(websiteData)
-    }
-    if(websiteData.url !== URL){
-      websiteData.url = URL
-      runCSS(URL, scrapeTitle)
-
-      // res.send(websiteData)
-      // websites.push(websiteData)
-      // res.redirect('../');
-
-    }
-
-    // res.send(websiteData)
-
-      // app.get("/api/websites/:url", function(req, res) {
-      //   URL = `https://${req.params.url}`;
-      //   console.log(URL)
-      //   scrapeTitle()
-      //   runCSS()
-      //   .then(function(data){
-      //     res.send(data)
-      //   })
-      // })
   });
+
   app.get("/api/websites/", function(req, res) {
-    res.send(websites)
+    if (websites[0].fonts.length < 1 || websites[0].title === "") {
+      res.send('Loading...Please wait a few seconds, then refresh!')
+    } else{
+      res.send(websites)
+    }
   })
-
+  
 };
-
-// check the URL to make sure it is valid. 
-// Set default if no URL provided, and throw error message if URL is invalid.
-// Otherwise, run code with given valid URL
-// if(!URL){
-//   URL= "https://www.webflow.com"
-//   console.log(`\nGathering information from:\n${URL}\nThis may take a few seconds...\n`)
-//   scrapeTitle()
-//   runCSS()
-//   // Need to set URL to this default - otherwise, URL does not get added to JSON data
-//   websiteData.url = URL
-//   // Once data is gathered and assigned, push the data to the data array that will get sent to the API endpoint
-//   websites.push(websiteData)
-// } else {
-//   if(validateUrl(URL)=== false){
-//       console.log(`invalid URL, try again`)
-//   } else {
-//       console.log(cleanURL)
-//       scrapeTitle()
-//       runCSS()
-//       // Once data is gathered, push the data to the data array that will get sent to the API endpoint
-//       websites.push(websiteData)
-
-//   }
-// }
 
 // Scrape the title from the body response of given URL
 function scrapeTitle(url) {
@@ -135,18 +70,7 @@ function add(array, value) {
 // Runs the minimal CSS function to get all CSS from the URL.
 // CSS is then parsed and split to pull font-family info ONLY by .then splitting on ;
 // Checks for special characters to get simplified font data and log them in a list
-
-function getUserInput(firstName, lastName, gender, callback) {
-  var fullName = firstName + " " + lastName;
-
-  // Make sure the callback is a function
-  if (typeof callback === "function") {
-  // Execute the callback function and pass the parameters to it
-  callback(fullName, gender);
-  }
-}
-// runCSS(url, scrapeTitle)
-
+// require a callback to do all of the scrape logic in the same function.
 function runCSS(url, callback){
   var URL = url
   callback(URL)
@@ -182,7 +106,7 @@ function runCSS(url, callback){
       } else {
         console.log(`\nSORRY, no font-families were gathered from ${URL}.\nTry another URL if you'd like.\nSee what data we did gather by following the link below:`)
         console.log(`http://localhost:8080/api/websites`)
-
+        websiteData.fonts = "Sorry, no fonts were found"
       }
       return(websiteData)
   })
@@ -191,17 +115,3 @@ function runCSS(url, callback){
   });
 }
 
-// module.exports = function(app) {
-
-//   app.get("/api/websites/:url", function(req, res) {
-//     URL = req.params.url;
-//     console.log(URL)
-//     runCSS()
-//     // Once data is gathered, push the data to the data array that will get sent to the API endpoint
-//     websites.push(websiteData)
-//     console.log(websiteData)
-
-
-//     res.json(websites);
-//   });
-// };
