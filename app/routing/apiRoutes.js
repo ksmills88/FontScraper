@@ -22,11 +22,11 @@ module.exports = function(app) {
     websiteData.url = URL
     // this is one of the functions that will be passed in as a callback to only perform the data push and redirect after the .then promise in the main function.
     function r(data) {
-      websites.length = 0
+      
       websites.push(data)
-      res.redirect('/api/websites');
+      res.json(data)
     }
-    runCSS(URL, scrapeTitle, r)
+    runCSS(URL, scrapeTitle, r,)
   });
 
   app.get("/api/websites/", function(req, res) {
