@@ -60,7 +60,7 @@ The API response of your endpint should include a list of the font families used
         > ```/api/websites/:url```
     - When you hit the route, the code runs to scrape the font data and html title from the given website. This will take a few seconds.
 
-    - Once the scrape is complete, you are then redirected back to the initial route (```api/websites```) to see the results of that scrape. 
+    - Once the scrape is complete, you will see the updated results of that scrape (replacing the previous results).
 
     - If the application was unable to scrape the font data, your result will look something like this:
 
