@@ -8,25 +8,30 @@ const minimalcss = require('minimalcss');
 
 // let URL = process.argv[2]
 
-let websiteData = {
-  url: URL,
-  title: "",
-  fonts: []
-};
+// let websiteData = {
+//   url: URL,
+//   title: "",
+//   fonts: []
+// };
 
 
 module.exports = function(app) {
 
   app.get("/api/websites/:url", function(req, res) {
     URL = `https://${req.params.url}`;
+    let websiteData = {
+      url: URL,
+      title: "",
+      fonts: []
+    };
     websiteData.url = URL
     // this is one of the functions that will be passed in as a callback to only perform the data push and redirect after the .then promise in the main function.
     function r(data) {
-      
+      data.url = URL
       websites.push(data)
       res.json(data)
     }
-    runCSS(URL, scrapeTitle, r,)
+    runCSS(URL, scrapeTitle, r, websiteData)
   });
 
   app.get("/api/websites/", function(req, res) {
@@ -40,7 +45,7 @@ module.exports = function(app) {
 };
 
 // Scrape the title from the body response of given URL
-function scrapeTitle(url) {
+function scrapeTitle(url, object) {
   request({
       method: 'GET',
       url: url
@@ -51,7 +56,7 @@ function scrapeTitle(url) {
       //searches the element: title to get the text
       let title = $('title');
       //sets the title in the globally defined websiteData object
-      websiteData.title = title.text()
+      object.title = title.text()
   });
 }
 
@@ -71,9 +76,9 @@ function add(array, value) {
 // CSS is then parsed and split to pull font-family info ONLY by .then splitting on ;
 // Checks for special characters to get simplified font data and log them in a list
 // require a callback to do all of the scrape logic in the same function.
-function runCSS(url, callback, funct){
+function runCSS(url, callback, funct, object){
   var URL = url
-  callback(URL)
+  callback(URL, object)
   minimalcss
   .minimize({ urls: [URL] })
   .then(result => {
@@ -93,7 +98,7 @@ function runCSS(url, callback, funct){
           }
       }
       //sets the fonts array in the globally defined websiteData object
-      websiteData.fonts = fonts
+      object.fonts = fonts
       
       if(fonts.length > 0){
         console.log(`\nYAY, SUCCESS! Follow the link below to see the results:`)
@@ -106,10 +111,10 @@ function runCSS(url, callback, funct){
       } else {
         console.log(`\nSORRY, no font-families were gathered from ${URL}.\nTry another URL if you'd like.\nSee what data we did gather by following the link below:`)
         console.log(`http://localhost:8080/api/websites`)
-        websiteData.fonts = "Sorry, no fonts were found"
+        object.fonts = "Sorry, no fonts were found"
       }
       // return(websiteData)
-      funct(websiteData)
+      funct(object)
   })
   .catch(error => {
       console.error(`Failed the minimize CSS: ${error}`);
