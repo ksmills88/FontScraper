@@ -50,13 +50,17 @@ function add(array, value) {
   }
 }
 // Only adds the object to the external array of site data if not already in array.
-// function addObject(array, object) {
-//   for (var i=0; i<array.length; i++) {
-//     if (array[i].url !== object.url) {
-//       array.push(object);
-//     }
-//   }
-// }
+function addObject(array, object) {
+  var included = false
+  for (var i=0; i<array.length; i++) {
+    if (array[i].url === object.url) {
+      included=true
+    }
+  }
+  if (!included) {
+    array.push(object);
+  }
+}
 
 // Runs the minimal CSS function to get all CSS from the URL.
 // CSS is then parsed and split to pull font-family info.
@@ -95,7 +99,8 @@ function runCSS(url, callback, funct){
         object.fonts = "Sorry, no fonts were found"
       }
       funct(object)
-      websites.push(object)
+      // websites.push(object)
+      addObject(websites, object)
   })
   .catch(error => {
       console.error(`Failed the minimize CSS: ${error}`);
