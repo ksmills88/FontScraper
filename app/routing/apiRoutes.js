@@ -10,17 +10,12 @@ module.exports = function(app) {
 
   app.get("/api/websites/:url", function(req, res) {
     URL = `https://${req.params.url}`;
-    // create a new instance of websiteData inside the GET
-    let websiteData = {
-      url: URL,
-      title: "",
-      fonts: []
-    };
+
     // sends the resulting data object to the route
     r=(data)=>{
       res.json(data)
     }
-    runCSS(URL, scrapeTitle, r, websiteData)
+    runCSS(URL, scrapeTitle, r)
   });
 
   app.get("/api/websites/", function(req, res) {
@@ -55,20 +50,22 @@ function add(array, value) {
   }
 }
 // Only adds the object to the external array of site data if not already in array.
-function addObject(array, object) {
-  for (var i=0; i<array.length; i++) {
-    if (array[i].url !== object.url) {
-      array.push(object);
-    }
-  }
-}
+// function addObject(array, object) {
+//   for (var i=0; i<array.length; i++) {
+//     if (array[i].url !== object.url) {
+//       array.push(object);
+//     }
+//   }
+// }
 
 // Runs the minimal CSS function to get all CSS from the URL.
 // CSS is then parsed and split to pull font-family info.
 // Checks for special characters to get simplified font data and log them in a list
 // require a callback to do all of the scrape logic in the same function.
-function runCSS(url, callback, funct, object){
+function runCSS(url, callback, funct){
   var URL = url
+  var object = {}
+  object.url = URL
   callback(URL, object)
   minimalcss
   .minimize({ urls: [URL] })
@@ -98,7 +95,7 @@ function runCSS(url, callback, funct, object){
         object.fonts = "Sorry, no fonts were found"
       }
       funct(object)
-      addObject(websites, object)
+      websites.push(object)
   })
   .catch(error => {
       console.error(`Failed the minimize CSS: ${error}`);
