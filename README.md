@@ -1,5 +1,5 @@
 # Font-family Scraper
-#### This is a Node.js application that takes in a URL as a URL parameter, downloads and parses the CSS files associated with that URL, and extracts all of the associated fonts and sends them to an API endpoint.
+#### This is a Node.js application that takes in a website's URL as a URL parameter, downloads and parses the CSS files associated with that URL, and extracts all of the associated fonts and sends them to an API endpoint.
 # Getting Started
 
 ### Packages used:
